@@ -37,12 +37,9 @@ sealed class Option<out T>: Collection<T> {
         /**
          * Construction helper.
          *
-         * @return A None if the provided value is a null or a None, the value wrapped by a Some
-         *
-         * TODO: What if t == Some(r) ?? As of now it returns a Some(Some(r))
+         * @return A None if the provided value is a null, else the value wrapped by a Some
          */
-        operator fun<T> invoke(t: T?): Option<T> =
-                if (t == null || t is None) None else Some(t)
+        operator fun<T> invoke(t: T?): Option<T> = if (t == null) None else Some(t)
 
         /**
          * Wrap the provided function invocation with a try block to silently consume any exceptions being raised
@@ -234,5 +231,20 @@ infix fun<T> Option<T>.or(t: Option<T>): Option<T> = if (isDefined()) this else 
  */
 infix fun<T> Option<T>.or(f: () -> Option<T>): Option<T> = if (isDefined()) this else f()
 
+/**
+* Helper function to convert any nullable type into an option
+ */
+fun<T> T?.toOption(): Option<T> = if (this == null) Option.None else Option(this)
 
-fun<T> T?.toOption(): Option<T> = if (this != null) Option(this) else Option.None
+/* Very nice optional get on Map courtesy
+ * https://github.com/MarioAriasC/funKTionale/blob/master/src/main/kotlin/org/funktionale/option/Option.kt */
+
+interface Getter<K, V> {
+    val getter: (K) -> V
+    operator fun get(key: K): V = getter(key)
+}
+
+class GetterImpl<K, V>(override val getter: (K) -> V) : Getter<K, V>
+
+val<K,V> Map<K,V>.optional: Getter<K, Option<V>>
+    get () = GetterImpl { k -> this[k].toOption()}

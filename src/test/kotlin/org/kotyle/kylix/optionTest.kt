@@ -24,10 +24,10 @@ import org.kotyle.kylix.option.Option.None
 class OptionsTest {
     @Test
     fun construction() {
-        assertEquals(Some(5), Option(5))
-        assertEquals(None,    Option(null))
-        assertEquals(None,    Option(None))
-        assertEquals(None,    None.orElse(None))
+        assertEquals(Some(5),     Option(5))
+        assertEquals(None,        Option(null))
+        assertEquals(Some(None),  Option(None))
+        assertEquals(None,        None.orElse(None))
     }
 
     @Test(expected = IllegalArgumentException::class)
@@ -185,38 +185,12 @@ class OptionsTest {
         assertEquals(Some(1), genOpt(1) or genOpt(2) or genOpt(3) or genOpt(4))
         assertEquals(Some(3), genOpt(0) or genOpt(0) or genOpt(3) or genOpt(4))
     }
-}
 
-class OptionAsACollectionExamples {
-    /*
-    ** These methods are not directly methods on Option per se. But become automatically available by virtue of
-    ** Option inheriting from Collection/Iterator. They do not thus need to be individually tested since the
-    ** methods implementing the Collection/Iterator implementations have been. Hence this is but a small subset of
-    ** the available functions being tested.
-     */
     @Test
-    fun forEach() {
-        var forEachCalled = 0
-        var forEachValue: Int? = null
-        Some(5).forEach {
-            forEachCalled += 1
-            forEachValue = it
-        }
-        assertTrue("Some forEach should get called exactly once", forEachCalled == 1 && forEachValue == 5)
-
-        forEachCalled = 0
-        forEachValue = null
-        None.forEach {
-            forEachCalled += 1
-            @Suppress("UNREACHABLE_CODE")
-            forEachValue = it
-        }
-        assertTrue("None forEach should never get called", forEachCalled == 0 && forEachValue == null)
-    }
-    @Test
-    fun fold() {
-        assertEquals("A fold over none should return initial value", 5, None.fold(5,  {i, r -> r}))
-        assertEquals("A fold over some should return computed value", 10, Some(10).fold(5,  {i, r -> r}))
+    fun getFromMap() {
+        val map = mapOf(1 to "one", 2 to "two", 3 to "three")
+        assertEquals(Some("one"), map.optional[1])
+        assertEquals(None, map.optional[99])
     }
 }
 

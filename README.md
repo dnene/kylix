@@ -25,9 +25,13 @@ Kylix jars are published to bintray.com
 
 To use kylix from gradle, you need to configure gradle to use bintray repository
 
+_(TODO: Jcenter Publishing still pending)_
+
 ```    
 repositories {
     mavenCentral()
+    maven { url "https://dl.bintray.com/dnene/org.kotyle" }
+
 	jcenter()
 }
 ```   
