@@ -2,7 +2,7 @@
 
 The code below illustrates various usages of `Option` documented as a Test Case
 
-```
+```kotlin
 import org.junit.Test
 import org.kotyle.kylix.option.*
 import org.kotyle.kylix.option.Option.None
