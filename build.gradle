@@ -13,7 +13,7 @@ buildscript {
     }
 }
 group 'org.kotyle'
-version '0.0.1'
+version '0.0.2-SNAPSHOT'
 
 apply plugin: 'java'
 apply plugin: 'kotlin'
@@ -41,14 +41,6 @@ ext {
 }
 
 sourceCompatibility = 1.6
-
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            repository(url: "file:///home/dhananjay/.m2/repository")
-        }
-    }
-}
 
 dokka {
     moduleName = 'kylix'
