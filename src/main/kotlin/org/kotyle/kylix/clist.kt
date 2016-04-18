@@ -1,5 +1,8 @@
 package org.kotyle.kylix.clist
 
+import org.kotyle.kylix.option.Option
+import org.kotyle.kylix.option.toOption
+
 sealed class CList<out T> {
     companion object {
         operator fun <T> invoke(vararg ts: T): CList<T> =
@@ -10,6 +13,7 @@ sealed class CList<out T> {
     abstract fun <R> map(fn: (T) -> R): CList<R>
     abstract fun filter(fn: (T) -> Boolean): CList<T>
     abstract fun <R> flatMap(fn: (T) -> CList<R>): CList<R>
+    abstract val headOption: Option<Pair<T, CList<T>>>
 
     object Nil: CList<Nothing>() {
         override fun drop(n: Int): CList<Nothing> { if (n > 0) throw IllegalStateException("drop accessed on a Nil") else return this}
@@ -19,6 +23,7 @@ sealed class CList<out T> {
         override fun <R> map(fn: (Nothing) -> R): CList<R> = this
         override fun filter(fn: (Nothing) -> Boolean): CList<Nothing> = this
         override fun <R> flatMap(fn: (Nothing) -> CList<R>): CList<R> = this
+        override val headOption: Option<Nothing> = Option.None
     }
     class Cons<T>(val head: T, val tail: CList<T>): CList<T>() {
         override fun drop(n: Int) = if (n > 0) tail.drop(n-1) else this
@@ -48,6 +53,7 @@ sealed class CList<out T> {
             }
             return merge(fn,fn(head),tail)
         }
+        override val headOption: Option<Pair<T, CList<T>>> = Pair(head,tail).toOption()
     }
 }
 
