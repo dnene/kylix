@@ -1,7 +1,8 @@
 buildscript {
-    ext.kotlin_version = "1.0.1-2"
+    ext.kotlin_version = "1.0.2"
     ext.dokka_version = "0.9.7"
     ext.gradle_bintray_version = "1.6"
+    ext.junit_version="4.12"
     repositories {
         mavenCentral()
         jcenter()

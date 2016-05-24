@@ -25,9 +25,9 @@ package org.kotyle.kylix.either
 
 import org.kotyle.kylix.helpers.EmptyIterator
 import org.kotyle.kylix.helpers.SingleItemIterator
+import org.kotyle.kylix.option.Option
 import org.kotyle.kylix.option.Option.None
 import org.kotyle.kylix.option.Option.Some
-import org.kotyle.kylix.option.Option
 
 /**
  * A interface for specifying handler functions for both left and right results of an Either
@@ -284,6 +284,28 @@ fun<L,R,T> Either.RightProjection<L, R>.flatMap(f: (R) -> Either<L,T>): Either<L
     }
 }
 
+
+/**
+ * A right biased flatMap
+ */
+
+fun <L, R, T> Either<L,R>.flatMap(f: (R) -> Either<L,T>): Either<L,T> =
+        when(this) {
+            is Either.Left -> Either.Left<L,T>(this.value)
+            is Either.Right -> f(this.value)
+        }
+
+/**
+ * A right biased flatMap
+ */
+
+fun <L, R> Either<L,R>.flatMapWithOption(f: (R) -> L?): Either<L,R> =
+        when(this) {
+            is Either.Left -> Either.Left<L,R>(this.value)
+            is Either.Right -> f(this.value)?.let { Either.Left<L,R>(it) } ?: this
+        }
+
+
 /**
  * Map this left value and another instance of an Either (with the same right type, but a different left type),
  * into another Either instance with yet another type as its Left type
@@ -297,6 +319,27 @@ fun<L, R, P, Q> Either.LeftProjection<L,R>.map(p: Either<P,R>, f:(L,P) -> Q): Ei
  */
 fun<L, R, P, Q> Either.RightProjection<L,R>.map(p: Either<L, P>, f:(P,R) -> Q): Either<L,Q> =
     flatMap { r -> p.right().map { pp -> f(pp, r)}}
+
+/**
+ * A right biased map on a Left Instance
+ *
+ * Note that if both instances are left, the value of this instance overrides that of p
+ */
+fun<L, R, P, Q> Either.Left<L,R>.map(p: Either<L, P>, f:(P,R) -> Q): Either<L,Q> = Either.Left<L,Q>(this.value)
+
+/**
+ * A right biased map on a Right Instance
+ */
+
+fun<L, R, P, Q> Either<L,R>.map(p: Either<L, P>, f:(P,R) -> Q): Either<L,Q> =
+     when(this) {
+        is Either.Left -> Either.Left<L,Q>(this.value)
+        is Either.Right -> when(p) {
+            is Either.Left -> Either.Left<L,Q>(p.value)
+            is Either.Right -> Either.Right(f(p.value, this.value))
+        }
+    }
+
 
 /**
  * Given an either of both left and right being of the same, type, merge it into a single value of the same type
