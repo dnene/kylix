@@ -284,6 +284,12 @@ fun<L,R,T> Either.RightProjection<L, R>.flatMap(f: (R) -> Either<L,T>): Either<L
     }
 }
 
+class EitherFolder<L,R,T>(val e: Either<L,R>, val fnLeft: (L) -> T) {
+    fun andRight(fnRight: (R) ->T): T = e.fold(fnLeft,fnRight)
+}
+
+fun<L,R,T> Either<L,R>.foldOverLeft(fnLeft: (L) -> T): EitherFolder<L,R,T> = EitherFolder(this, fnLeft)
+
 
 /**
  * A right biased flatMap
