@@ -33,7 +33,7 @@ class LRUTest {
         val maxSize = 10
         val maxKey = 20
         val nextAdditions = 3
-        val map =  LRUMap<Int,Int>(maxSize, Function { n: Int -> n * 3 })
+        val map =  LRUMap<Int,Int>(maxSize, Function(::triple))
         (1..maxKey).forEach { map.get(it)}
         assertEquals("Map should have maxsize elements at max", maxSize, map.size)
         assertTrue("Map should've retained most recent insertions", map.all { it.key > maxKey - maxSize} && map.all { it.key <= maxKey})
