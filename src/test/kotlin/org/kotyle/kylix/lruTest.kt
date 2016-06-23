@@ -5,7 +5,6 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.kotyle.kylix.lru.LRUMap
 import org.kotyle.kylix.lru.toLruMap
-import java.util.function.Function
 
 fun triple(n: Int) = 3 * n
 
@@ -33,7 +32,7 @@ class LRUTest {
         val maxSize = 10
         val maxKey = 20
         val nextAdditions = 3
-        val map =  LRUMap<Int,Int>(maxSize, Function(::triple))
+        val map =  LRUMap<Int,Int>(maxSize, ::triple)
         (1..maxKey).forEach { map.get(it)}
         assertEquals("Map should have maxsize elements at max", maxSize, map.size)
         assertTrue("Map should've retained most recent insertions", map.all { it.key > maxKey - maxSize} && map.all { it.key <= maxKey})
@@ -45,6 +44,5 @@ class LRUTest {
         assertTrue("Map should've retained most recent accesses", map.all {
             ((it.key > maxKey-maxSize) && (it.key <= maxKey-maxSize+nextAdditions)) ||
                     ((it.key > maxKey-maxSize+(2*nextAdditions)) && (it.key <= maxKey + nextAdditions))})
-
     }
 }
