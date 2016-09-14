@@ -110,6 +110,15 @@ sealed class Either<out L, out R> protected constructor () {
     abstract fun asRight(): Option<R>
 
     /**
+     * Transform the left value to a nullable type. If the left value is not defined, it will return a null
+     */
+    abstract fun toLeft(): L?
+    /**
+     * Transform the right value to a nullable type. If the right value is not defined, it will return a null
+     */
+    abstract fun toRight(): R?
+
+    /**
     ** Helper function to decompose this into a pair of left and right types. This results in the first element of
      * the pair being the value of the left type
      */
@@ -136,6 +145,8 @@ sealed class Either<out L, out R> protected constructor () {
         override val isLeft: Boolean = false
         override fun asLeft(): Option<L> = None
         override fun asRight(): Option<R> = Some(value)
+        override fun toLeft(): L? = null
+        override fun toRight(): R? = value
         override fun toString(): String = "Right($value)"
         override fun equals(other: Any?): Boolean =
                 this === other || (other != null && other is Right<*,*> && this.hashCode() == other.hashCode()
@@ -153,6 +164,8 @@ sealed class Either<out L, out R> protected constructor () {
         override val isLeft: Boolean = true
         override fun asLeft(): Option<L> = Some(value)
         override fun asRight(): Option<R> = None
+        override fun toLeft(): L? = value
+        override fun toRight(): R? = null
         override fun toString(): String = "Left($value)"
         override fun equals(other: Any?): Boolean =
                 this === other || (other != null && other is Left<*,*> && this.hashCode() == other.hashCode()
