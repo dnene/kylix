@@ -58,7 +58,7 @@ interface EitherHandler<L,R,T> {
  * the convention is that the Left type is used to represent the error type while the Right type is the type
  * of a successful computation
  */
-sealed class Either<out L, out R> protected constructor () {
+sealed class Either<out L, out R> private constructor () {
     /**
      * Helper for class level factory methods
      */
