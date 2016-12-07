@@ -85,27 +85,17 @@ sealed class Result<S> private constructor () {
      * Method to transform this into a result of the same type [T] irrespective of whether this is a error or a success
      * value, using transformation function pair to convert either the error or success value
      */
-    abstract fun<T> fold(onFlub: (Fault) -> T, onSuccess: (S) ->T): T
+
+    abstract fun <T> fold(onError: (Fault) -> T, onSuccess: (S) -> T): T
+    abstract fun <T> fold(handler: ResultHandler<S, T>): T
+
 
     /**
-     * fold using an either handler
+     * flatMap
      */
 
-    fun <T> fold(handler: ResultHandler<S, T>): T =
-        when(this) {
-            is Failure -> handler.onFailure(this.value)
-            is Success -> handler.onSuccess(this.value)
-        }
-
-    /**
-     * flatMap using an handler
-     */
-
-    fun <T> flatMap(handler: SuccessHandler<S,T>): Result<T> =
-            when(this) {
-                is Failure -> Failure<T>(this.value)
-                is Success -> handler.onSuccess(this.value)
-            }
+    abstract fun <T> flatMap(op: (S) -> Result<T>): Result<T>
+    abstract fun <T> flatMap(handler: SuccessHandler<S,T>): Result<T>
 
     class Success<R>(val value: R) : Result<R>() {
         override val isSuccess: Boolean = true
@@ -119,11 +109,18 @@ sealed class Result<S> private constructor () {
                 this === other || (other != null && other is Success<*> && this.hashCode() == other.hashCode()
                         && this.value == other.value)
         override fun hashCode(): Int = value!!.hashCode()
-        override fun<T> fold(onFlub: (Fault) -> T, onSuccess: (R) ->T): T = onSuccess(value)
+        override fun<T> fold(onError: (Fault) -> T, onSuccess: (R) ->T): T = onSuccess(value)
+        override fun <T> fold(handler: ResultHandler<R, T>): T = handler.onSuccess(this.value)
+        override fun <T> flatMap(op: (R) -> Result<T>): Result<T> = op(this.value)
+        override fun <T> flatMap(handler: SuccessHandler<R,T>): Result<T> = handler.onSuccess(this.value)
         override fun asPair(): Pair<Fault?,R?> = Pair(null,value)
     }
 
     class Failure<R>(val value: Fault) : Result<R>() {
+        constructor(message: String): this(Fault(message))
+        constructor(message: String, args: Map<String,Any?>): this(Fault(message, args))
+        constructor(message: String, cause: Throwable): this(Fault(message, cause = cause))
+        constructor(message: String, args: Map<String,Any?>, cause: Throwable): this(Fault(message, args, cause))
         override val isSuccess: Boolean = false
         override val isError: Boolean = true
         override fun asError(): Optional<Fault> = Optional.of(value)
@@ -135,7 +132,10 @@ sealed class Result<S> private constructor () {
                 this === other || (other != null && other is Failure<*> && this.hashCode() == other.hashCode()
                         && this.value == other.value)
         override fun hashCode(): Int = value!!.hashCode()
-        override fun<T> fold(onFlub: (Fault) -> T, onSuccess: (R) ->T): T = onFlub(value)
+        override fun <T> fold(handler: ResultHandler<R, T>): T = handler.onFailure(this.value)
+        override fun<T> fold(onError: (Fault) -> T, onSuccess: (R) ->T): T = onError(value)
+        override fun <T> flatMap(op: (R) -> Result<T>): Result<T> = Failure(this.value)
+        override fun <T> flatMap(handler: SuccessHandler<R,T>): Result<T> = Failure(this.value)
         override fun asPair(): Pair<Fault?,R?> = Pair(value, null)
     }
 }
