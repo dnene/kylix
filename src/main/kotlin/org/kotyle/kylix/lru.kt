@@ -12,4 +12,3 @@ fun <K,V> Collection<Pair<K,V>>.toLruMap(maxSize: Int=50, fn: ((K) -> V?), sync:
         this.fold(LRUMap<K,V>(maxSize,fn)) { acc, elem ->
             acc.apply { put(elem.first, elem.second) }
         }.let { if (sync) Collections.synchronizedMap(it) else it}
-``
