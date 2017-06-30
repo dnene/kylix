@@ -14,7 +14,7 @@ class LRUTest {
         val maxSize = 10
         val maxKey = 20
         val nextAdditions = 3
-        val newMap = (1..maxKey).map { Pair(it,it)}.toLruMap(maxSize)
+        val newMap = (1..maxKey).map { Pair(it,it)}.toLruMap(maxSize, { n -> n })
         assertEquals("Map should have maxsize elements at max", maxSize, newMap.size)
         assertTrue("Map should've retained most recent insertions", newMap.all { it.key > maxKey - maxSize} && newMap.all { it.key <= maxKey})
         // force access
