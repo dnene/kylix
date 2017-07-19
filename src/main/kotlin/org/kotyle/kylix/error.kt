@@ -7,6 +7,10 @@ data class Fault(val message: String,
                  val cause: Throwable? = null,
                  val subErrors: List<Fault>? = null) {
     fun isCollection() = (subErrors != null) && (subErrors.size > 0)
+    fun annotate(vararg pairs: Pair<String,Any?>): Fault =
+            (args?.let { it + pairs } ?: pairs.toMap()).let {
+                Fault(message,it,cause,subErrors?.map { it.annotate(*pairs)})
+            }
 }
 
 fun <T: Any?> Fault.toLeft(): Either<Fault,T> =Either.Left<Fault,T>(this)
